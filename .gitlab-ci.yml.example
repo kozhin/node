@@ -1,0 +1,59 @@
+#
+# Variables declaration
+#
+variables:
+  IMAGE_NAME: "docker/nodejs/node"
+  NODE_VERSION: "14.8.0"
+  NPM_VERSION: "6.14.7"
+  YARN_VERSION: "1.22.4"
+
+#
+# CI Stages declaration
+#
+stages:
+  - build
+  - deploy
+  - cleanup
+
+#
+# Build action
+#
+Build:
+  stage: build
+  script:
+    - echo "Building NodeJS release v$NODE_VERSION.."
+    - docker build \
+      --build-arg NODE_VERSION=$NODE_VERSION \
+      --build-arg NPM_VERSION=$NPM_VERSION \
+      --build-arg YARN_VERSION=$YARN_VERSION \
+      -t $CI_REGISTRY/$IMAGE_NAME:$NODE_VERSION .
+    - docker tag $CI_REGISTRY/$IMAGE_NAME:$NODE_VERSION $CI_REGISTRY/$IMAGE_NAME:latest
+    - echo "Completed"
+  only:
+    - tags
+
+#
+# Deploy action
+#
+Deploy:
+  stage: deploy
+  script:
+    - echo "Delivering images.."
+    - docker push $CI_REGISTRY/$IMAGE_NAME:$NODE_VERSION
+    - docker push $CI_REGISTRY/$IMAGE_NAME:latest
+    - echo "Completed"
+  only:
+    - tags
+
+#
+# Clean up action
+#
+Clean up:
+  stage: cleanup
+  script:
+    - echo "Cleaning up images.."
+    - docker rmi $CI_REGISTRY/$IMAGE_NAME:latest
+    - docker rmi $CI_REGISTRY/$IMAGE_NAME:$NODE_VERSION
+    - echo "Completed"
+  only:
+    - tags
