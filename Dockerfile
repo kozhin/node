@@ -3,7 +3,7 @@ FROM alpine:edge
 
 # Set maintainer and info for image
 LABEL Description="This image contains NodeJS framework" \
-      Vendor="CodedRed" \
+      Vendor="" \
       Version="1.4.4" \
       Maintainer="Konstantin Kozhin <https://github.com/kozhin>"
 
